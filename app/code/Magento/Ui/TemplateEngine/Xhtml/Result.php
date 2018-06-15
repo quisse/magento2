@@ -5,6 +5,7 @@
  */
 namespace Magento\Ui\TemplateEngine\Xhtml;
 
+use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\View\Layout\Generator\Structure;
 use Magento\Framework\View\Element\UiComponentInterface;
 use Magento\Framework\View\TemplateEngine\Xhtml\Template;
@@ -41,6 +42,10 @@ class Result implements ResultInterface
      * @var LoggerInterface
      */
     protected $logger;
+    /**
+     * @var Json
+     */
+    private $jsonSerializer;
 
     /**
      * @param Template $template
@@ -48,19 +53,22 @@ class Result implements ResultInterface
      * @param UiComponentInterface $component
      * @param Structure $structure
      * @param LoggerInterface $logger
+     * @param Json $jsonSerializer
      */
     public function __construct(
         Template $template,
         CompilerInterface $compiler,
         UiComponentInterface $component,
         Structure $structure,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        Json $jsonSerializer
     ) {
         $this->template = $template;
         $this->compiler = $compiler;
         $this->component = $component;
         $this->structure = $structure;
         $this->logger = $logger;
+        $this->jsonSerializer = $jsonSerializer;
     }
 
     /**
@@ -81,7 +89,7 @@ class Result implements ResultInterface
     public function appendLayoutConfiguration()
     {
         $layoutConfiguration = $this->wrapContent(
-            json_encode($this->structure->generate($this->component), JSON_HEX_TAG)
+            $this->jsonSerializer->serialize($this->structure->generate($this->component), JSON_HEX_TAG)
         );
         $this->template->append($layoutConfiguration);
     }
