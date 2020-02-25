@@ -97,7 +97,14 @@ class IndexerTableSwapperTest extends TestCase
             ->method('getTableName')
             ->with($this->stringStartsWith($originalTableName . '__temp'))
             ->willReturn($temporaryTableName);
-
+        $this->resourceConnectionMock->expects($this->at(3))
+            ->method('getTableName')
+            ->with($originalTableName)
+            ->willReturn($originalTableName);
+        $this->adapterInterfaceMock->expects($this->once())
+            ->method('createTemporaryTableLike')
+            ->with($temporaryTableName, $originalTableName);
+        
         $this->assertEquals(
             $temporaryTableName,
             $model->getWorkingTableName($originalTableName)
